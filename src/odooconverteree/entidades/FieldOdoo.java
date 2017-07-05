@@ -19,6 +19,26 @@ public class FieldOdoo {
         this.tipo = tipo;
         this.related = null;
     }
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+    
+    public String getRelated(){
+        return this.related;
+    }
     
     public void setRelated(String rel){
         this.related = rel;

@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import odooParserSql.AdapterMySql;
 import odooconverteree.entidades.FieldOdoo;
 
 /**
@@ -26,7 +27,7 @@ public class OdooConverterEE {
       File archivo = null;
       FileReader fr = null;
       BufferedReader br = null;
-      String file = "C:\\Users\\Ana Flavia Begazo\\Documents\\NetBeansProjects\\OdooParserSql\\test\\models\\observacion.py";
+      String file = "C:\\Users\\Ana Flavia Begazo\\Documents\\NetBeansProjects\\OdooParserSql\\test\\models\\file_seguimiento.py";
 
       try {
          // Apertura del fichero y creacion de BufferedReader para poder
@@ -42,6 +43,11 @@ public class OdooConverterEE {
              analizeLine(linea);
          }
          print(classes.toString());
+         
+          for (int i = 0; i < classes.size(); i++) {
+              AdapterMySql adapterMySql = new AdapterMySql();
+              print(adapterMySql.createTable(classes.get(i)));
+          }
       }
       catch(Exception e){
          e.printStackTrace();
