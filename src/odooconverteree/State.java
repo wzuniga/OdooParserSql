@@ -10,5 +10,5 @@ package odooconverteree;
  * @author wzuniga
  */
 public enum State {
-    INCLASS, OUTCLASS;
+    INCLASS, OUTCLASS, FIELD, RELATION;
 }
