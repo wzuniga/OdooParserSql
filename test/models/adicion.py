@@ -19,8 +19,10 @@ class Usuario(models.Model):
 
 class file_seguimiento_material_rel(models.Model):
     _inherit = 'modeloprenda.material.rel'
-    file_seguimiento_id = fields.Many2one('tejido.file.seguimiento',
-                                          'File de Seguimiento',)
+    file_seguimiento_id = fields.Many2one(
+        'tejido.file.seguimiento',
+        'File de Seguimiento'
+    )
 
 
 class file_seguimiento_maquina(models.Model):

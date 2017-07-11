@@ -6,25 +6,44 @@
 package odooParserSql;
 
 import java.util.ArrayList;
+import odooconverteree.OdooConverterEE;
 import odooconverteree.entidades.ClassOdoo;
 import odooconverteree.entidades.FieldOdoo;
+import odooconverteree.entidades.Graph;
+import odooconverteree.entidades.SortClass;
 
 /**
  *
- * @author Ana Flavia Begazo
+ * @author wzuniga
  */
 public class AdapterMySql {
     
-    ArrayList<FieldOdoo> fields = new ArrayList<FieldOdoo>();
-    ArrayList<FieldOdoo> relations = new ArrayList<FieldOdoo>();
-    String reservedWords [] = {
-        "option"
-    };
+    private ArrayList <ClassOdoo> classes = new ArrayList<ClassOdoo>();
+    private String dataBaseName;
+    public String reservedWords [] = {"option"};
     
-    public String createTable(ClassOdoo clOd){
+    private ArrayList<FieldOdoo> fields;
+    private ArrayList<FieldOdoo> relations;
+
+    public AdapterMySql(ArrayList <ClassOdoo> classes, String name) {
+        this.classes = classes;
+        this.dataBaseName = name;
+        this.fields = new ArrayList<FieldOdoo>();
+        this.relations = new ArrayList<FieldOdoo>();
+    }
+    
+    public void setClass(ArrayList <ClassOdoo> classes){
+        this.classes = classes;
+    }
+    
+    public String createDataBase(){
+        return "CREATE DATABASE " + dataBaseName + ";\nUSE " + dataBaseName + ";\n";
+    }
+    
+    public String createTables(ClassOdoo clOd){
         separateFields(clOd);
         String sql = "CREATE TABLE " + clOd.getName() + "(\n";
-        sql += generateAtribute(new FieldOdoo("id", "Integer"), false);
+        sql += generateAtribute(new FieldOdoo("id", "Integer"));
         for (int i = 0; i < fields.size(); i++) {
             FieldOdoo fieldOdoo = fields.get(i);
             if(isRelation(fieldOdoo.getTipo())){
@@ -32,17 +51,18 @@ public class AdapterMySql {
                 continue;
             }
             verify(fieldOdoo);
-            sql += generateAtribute(fieldOdoo, i == fields.size()-1);
+            sql += generateAtribute(fieldOdoo);
         }
         
-        addRelationalFields(sql);
-        
-        sql += ")\n";
+        sql += addRelationalFields();
+        sql += "PRIMARY KEY (id)\n";
+        sql += ")ENGINE=INNODB;\n\n";
+        clean();
         return sql;
     }
     
-    private String generateAtribute(FieldOdoo flOd, boolean last){
-        return flOd.getField() + " " + getTypeRow(flOd.getTipo()) + (last ? "" : ",")  + "\n";
+    private String generateAtribute(FieldOdoo flOd){
+        return flOd.getField() + " " + getTypeRow(flOd.getTipo()) + "," + "\n";
     }
     
     private String getTypeRow(String type){
@@ -74,12 +94,72 @@ public class AdapterMySql {
     private void verify(FieldOdoo fieldOdoo){
         for (int i = 0; i < reservedWords.length; i++) {
             if(fieldOdoo.getField().equals(reservedWords[i]))
-                fieldOdoo.setField(fieldOdoo.getField()+"changed");
+                fieldOdoo.setField(fieldOdoo.getField()+"_changed");
         }
     }
 
-    private String addRelationalFields(String sql) {
+    private String addRelationalFields() {
+        String sql = "";
         
+        for (int i = 0; i < relations.size(); i++) {
+            FieldOdoo item = relations.get(i);
+            if (item.getTipo().equals("Many2one")){
+                sql += item.getField() + " INT,"  + "\n";
+            }
+        }
+        for (int i = 0; i < relations.size(); i++) {
+            FieldOdoo item = relations.get(i);
+            if (item.getTipo().equals("Many2one")){
+                sql += "FOREIGN KEY ("+item.getField()+") REFERENCES "+getTableName(item.getRelated())+"(id)";
+                sql += ",\n";
+            }
+        }
         return sql;
     }
+    
+    public String getTableName(String find){
+        for (ClassOdoo clOd : classes) {
+            if(clOd.getTableName().equals(find)){
+                return clOd.getName();
+            }
+        }
+        return "not found";
+    }
+    
+    private boolean existMany2One(){
+        for (int i = 0; i < relations.size(); i++) 
+            if (relations.get(i).getRelated().equals("Many2one"))
+                return true;
+        return false;
+    }
+
+    private void clean() {
+        fields = new ArrayList<FieldOdoo>();
+        relations = new ArrayList<FieldOdoo>();
+    }
+    
+    public ArrayList<ClassOdoo> sortClassOdoo(ArrayList<ClassOdoo> classes){
+        Graph gr = new Graph();
+        
+        for (ClassOdoo classe : classes) {
+            ArrayList<FieldOdoo> local_relations = new ArrayList<FieldOdoo>();
+            for (FieldOdoo fieldOdoo : classe.atributos) 
+                if (isRelation(fieldOdoo.getTipo()) && fieldOdoo.getTipo().equals("Many2one"))  local_relations.add(fieldOdoo);
+            gr.addNode(classe.getName());
+            for (FieldOdoo item:local_relations )
+                gr.addEdge(getTableName(item.getRelated()), classe.getName() );//  classe.getName(), item.getRelated());
+        }
+        OdooConverterEE.write("graph.txt", gr.toString());
+        //System.out.println(gr);
+        
+        SortClass sc = new SortClass(gr, classes);
+        //System.out.println("????????????????????????????????");
+        boolean bl = gr.haveCycles();
+        if (bl){
+            System.out.println("Tiene ciclos - revisar");
+            System.exit(0);
+        }
+        return sc.sort();
+    }
+
 }
