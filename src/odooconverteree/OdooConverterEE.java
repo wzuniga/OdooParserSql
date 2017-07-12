@@ -25,21 +25,12 @@ public class OdooConverterEE {
     static ArrayList<ClassOdoo> classes = new ArrayList<ClassOdoo>();
     static int counterBlank = 0;
 
-    public static void main(String[] args) {
+    public String start(String [] files) {
         File archivo = null;
         FileReader fr = null;
         BufferedReader br = null;
-        String [] files = {"test\\models\\addons.py",
-                           "test\\models\\tablas.py",
-                           "test\\models\\componente_panel.py",
-                           "test\\models\\estiraje.py",
-                           "test\\models\\lav_sec_vap.py",
-                           "test\\models\\observacion.py",
-                           "test\\models\\tejido.py",
-                           "test\\models\\tupideses.py",
-                           "test\\models\\adicion.py",
-                           "test\\models\\file_seguimiento.py"
-                            };
+        String sql = "";
+
         try {
             for (int i = 0; i < files.length; i++) {
                 archivo = new File(files[i]);
@@ -67,11 +58,11 @@ public class OdooConverterEE {
             AdapterMySql adapterMySql = new AdapterMySql(classes, "Test2");
             classes = adapterMySql.sortClassOdoo(classes);
             adapterMySql.setClass(classes);
-            String sql = adapterMySql.createDataBase();
+            sql = adapterMySql.createDataBase();
             for (ClassOdoo classe : classes) {
                 sql += adapterMySql.createTables(classe);
             }
-            print(sql);
+            //print(sql);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -83,11 +74,12 @@ public class OdooConverterEE {
                 e2.printStackTrace();
             }
         }
+        return sql;
     }
 
-    public static State analizeLine(String str) {
+    public State analizeLine(String str) {
         String strClean = str.trim();
-        System.out.println(strClean);
+        //System.out.println(strClean);
         if (!isBlank(strClean) && !isComment(strClean)) {
             if (state == State.INCLASS) {
                 analizeInClass(strClean);
@@ -105,7 +97,7 @@ public class OdooConverterEE {
         return state;
     }
 
-    public static void analizeInClass(String str) {
+    public void analizeInClass(String str) {
         if (!isComment(str) && isField(str)) {
             String varch[] = str.split(" ");
             String temp = varch[2].split("\\.")[1];
@@ -121,15 +113,15 @@ public class OdooConverterEE {
         }
     }
 
-    public static void analizeOutClass(String str) {
+    public void analizeOutClass(String str) {
 
     }
 
-    public static boolean isComment(String str) {
+    public boolean isComment(String str) {
         return str.substring(0, 1).equals("#");
     }
 
-    public static boolean isBlank(String str) {
+    public boolean isBlank(String str) {
         boolean ans = str.isEmpty();
         if (ans) {
             if (counterBlank == 1) {
@@ -144,7 +136,7 @@ public class OdooConverterEE {
         return ans;
     }
 
-    public static boolean isField(String str) {
+    public boolean isField(String str) {
         String arr[] = str.split(" ");
         if (arr.length >= 3 && arr[2].indexOf("fields") >= 0) {
             //agregar aqui para obtener tipo de Dato
@@ -154,7 +146,7 @@ public class OdooConverterEE {
         return false;
     }
 
-    public static boolean isRelation(String type) {
+    public boolean isRelation(String type) {
         if (type.equals("Many2one") || type.equals("One2many") || type.equals("Many2many")) {
             state = State.RELATION;
 
@@ -163,13 +155,13 @@ public class OdooConverterEE {
         return false;
     }
 
-    public static String getNameClass(String str) {
+    public String getNameClass(String str) {
         String temp = str.split(" ")[1];
 
         return temp.substring(0, temp.indexOf("("));
     }
 
-    public static void insertInLastItem(String name, String type) {
+    public void insertInLastItem(String name, String type) {
         if (state == State.OUTCLASS) {
             return;
         }
@@ -177,7 +169,7 @@ public class OdooConverterEE {
 
     }
 
-    public static void insertInLastItemRelation(String rel) {
+    public void insertInLastItemRelation(String rel) {
         if (state == State.OUTCLASS) {
             return;
         }
@@ -185,11 +177,11 @@ public class OdooConverterEE {
         temp.get(temp.size() - 1).setRelated(rel);
     }
 
-    public static void print(String str) {
+    public void print(String str) {
         System.out.println(str);
     }
     
-    public static void write(String name, String txt){
+    public void write(String name, String txt){
         FileWriter fichero = null;
         PrintWriter pw = null;
         try

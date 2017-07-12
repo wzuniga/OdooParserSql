@@ -149,7 +149,7 @@ public class AdapterMySql {
             for (FieldOdoo item:local_relations )
                 gr.addEdge(getTableName(item.getRelated()), classe.getName() );//  classe.getName(), item.getRelated());
         }
-        OdooConverterEE.write("graph.txt", gr.toString());
+        //OdooConverterEE.write("graph.txt", gr.toString());
         //System.out.println(gr);
         
         SortClass sc = new SortClass(gr, classes);
