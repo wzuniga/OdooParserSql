@@ -16,6 +16,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import odooconverteree.OdooConverterEE;
+
 /**
  *
  * @author Ana Flavia Begazo
@@ -27,11 +28,16 @@ public class VisualParser extends javax.swing.JFrame {
      */
     JFileChooser chooser = new JFileChooser();
     ArrayList<String> strings = new ArrayList<String>();
-    DefaultListModel  modelUser = new javax.swing.DefaultListModel () {               
-                public int getSize() { return strings.size(); }
-                public Object getElementAt(int i) { return strings.get(i); }
-            };
-    
+    DefaultListModel modelUser = new javax.swing.DefaultListModel() {
+        public int getSize() {
+            return strings.size();
+        }
+
+        public Object getElementAt(int i) {
+            return strings.get(i);
+        }
+    };
+
     public VisualParser() {
         initComponents();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("python", "py");
@@ -146,7 +152,7 @@ public class VisualParser extends javax.swing.JFrame {
             File[] files = chooser.getSelectedFiles();
             strings = new ArrayList<String>();
             int e = 0;
-            for (File file : files){
+            for (File file : files) {
                 strings.add(file.getAbsolutePath());
                 modelUser.add(e++, file.getAbsolutePath());
             }
@@ -158,11 +164,11 @@ public class VisualParser extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-         OdooConverterEE odoo = new OdooConverterEE();
-         String [] a = new String[strings.size()];
-         jTextArea1.setText(odoo.start(strings.toArray(a)));
+        OdooConverterEE odoo = new OdooConverterEE();
+        String[] a = new String[strings.size()];
+        jTextArea1.setText(odoo.start(strings.toArray(a)));
     }//GEN-LAST:event_jButton3ActionPerformed
-    
+
     public void setClipboard(String str) {
         StringSelection ss = new StringSelection(str);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
