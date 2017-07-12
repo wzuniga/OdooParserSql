@@ -29,8 +29,8 @@ public class OdooConverterEE {
         File archivo = null;
         FileReader fr = null;
         BufferedReader br = null;
-        String [] files = {"test\\models\\tablas.py",
-                           "test\\models\\file_seguimiento.py",
+        String [] files = {"test\\models\\addons.py",
+                           "test\\models\\tablas.py",
                            "test\\models\\componente_panel.py",
                            "test\\models\\estiraje.py",
                            "test\\models\\lav_sec_vap.py",
@@ -63,6 +63,7 @@ public class OdooConverterEE {
             //print("\n");
             //print("\n");
             
+            //print(classes.toString());
             AdapterMySql adapterMySql = new AdapterMySql(classes, "Test2");
             classes = adapterMySql.sortClassOdoo(classes);
             adapterMySql.setClass(classes);
@@ -86,7 +87,7 @@ public class OdooConverterEE {
 
     public static State analizeLine(String str) {
         String strClean = str.trim();
-        //System.out.println(strClean);
+        System.out.println(strClean);
         if (!isBlank(strClean) && !isComment(strClean)) {
             if (state == State.INCLASS) {
                 analizeInClass(strClean);
